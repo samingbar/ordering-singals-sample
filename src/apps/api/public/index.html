@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ByteInventory Offline Ordering Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Temporal Demo</p>
+          <h1>ByteInventory Offline Ordering</h1>
+          <p class="hero-copy">
+            Long-running purchasing orchestration with optional steps, offline updates,
+            out-of-order callbacks, and durable audit history.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button id="seed-demo-button" class="button ghost">Seed Demo Orders</button>
+          <a class="button" href="http://localhost:4001" target="_blank" rel="noreferrer">
+            Open Vendor Simulator
+          </a>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel list-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Order List</p>
+              <h2>Tracked Purchase Orders</h2>
+            </div>
+            <button id="refresh-orders-button" class="button subtle">Refresh</button>
+          </div>
+          <div id="order-list" class="order-list"></div>
+        </section>
+
+        <section class="panel form-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Create Order</p>
+              <h2>Send a New Purchase Order</h2>
+            </div>
+          </div>
+          <form id="create-order-form" class="stack">
+            <label>
+              Vendor Name
+              <input name="vendorName" type="text" placeholder="Acme Medical" required />
+            </label>
+            <label>
+              Requested Ship Date
+              <input name="requestedShipDate" type="date" required />
+            </label>
+            <label>
+              Notes
+              <textarea name="notes" rows="3" placeholder="Urgent clinic replenishment"></textarea>
+            </label>
+            <div class="line-items-header">
+              <p>Line Items</p>
+              <button id="add-line-item-button" type="button" class="button subtle">Add Line</button>
+            </div>
+            <div id="line-items" class="line-items"></div>
+            <button type="submit" class="button">Create and Send Order</button>
+          </form>
+        </section>
+
+        <section class="panel detail-panel">
+          <div id="order-detail-empty" class="empty-state">
+            <p class="panel-kicker">Order Detail</p>
+            <h2>Select an order to inspect the workflow timeline.</h2>
+            <p>
+              Use the list on the left or seed the demo to create a few realistic starting orders.
+            </p>
+          </div>
+
+          <div id="order-detail" class="hidden">
+            <div class="detail-header">
+              <div>
+                <p class="panel-kicker">Order Detail</p>
+                <h2 id="detail-order-title">PO-00000</h2>
+                <p id="detail-order-subtitle" class="muted"></p>
+              </div>
+              <div class="status-stack">
+                <span id="detail-status-chip" class="status-chip">CREATED</span>
+                <span id="detail-exception-chip" class="exception-chip hidden"></span>
+              </div>
+            </div>
+
+            <section class="lifecycle-panel">
+              <div id="lifecycle-rail" class="lifecycle-rail"></div>
+            </section>
+
+            <section class="meta-grid">
+              <article class="meta-card">
+                <h3>Order Summary</h3>
+                <div id="order-summary"></div>
+              </article>
+              <article class="meta-card">
+                <h3>Manual Actions</h3>
+                <div class="action-grid">
+                  <button id="mark-received-button" class="button subtle">Mark Received</button>
+                  <button id="add-invoice-button" class="button subtle">Add Manual Invoice</button>
+                  <button id="record-credit-button" class="button subtle">Record Credit</button>
+                  <button id="mark-reconciled-button" class="button subtle">Mark Reconciled</button>
+                  <button id="cancel-order-button" class="button danger">Cancel Order</button>
+                </div>
+              </article>
+            </section>
+
+            <section class="meta-grid">
+              <article class="meta-card">
+                <h3>Open Exceptions</h3>
+                <div id="exception-list" class="exception-list"></div>
+              </article>
+              <article class="meta-card">
+                <h3>Timeline</h3>
+                <div id="timeline" class="timeline"></div>
+              </article>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+  </html>

@@ -1,41 +1,27 @@
-# Example Prompts for Agents to Develop Workflows
+# Example Prompts
 
-This document provides example prompts that can be used to guide AI agents in developing Temporal workflows.
+Use prompts like these with an AI coding agent working in this repository.
 
-## Table of Contents
-
-- [Text-based Prompt](#text-based-prompt)
-- [Multi-modal Prompt](#multi-modal-prompt)
-- [Usage Guidelines](#usage-guidelines)
-
-## Text-based Prompt
+## Add A Workflow
 
 ```text
-Implement an order Workflow with the following steps:
-
-1. check fraud
-1. prepare shipment
-1. charge customer
-1. ship order
+Add a new workflow under src/workflows/payments that charges a card through an activity, writes activity and workflow tests, and add npm scripts if needed.
 ```
 
-[![Order Workflow with Cursor](https://img.youtube.com/vi/ePbdiPNsgv4/maxresdefault.jpg)](https://youtu.be/ePbdiPNsgv4)
-*Video 1: generate order Workflow using Cursor*
-
-## Multi-modal Prompt
+## Extend A Sample
 
 ```text
-# attach-your-workflow-diagram-as-context
-Analyze the provided diagram and convert it into a Temporal Workflow Definition using the Python SDK. You MUST adhere to the given implementation standards defined in AGENTS.md
+Update the crawler sample to ignore links outside the starting domain and add tests for that behavior.
 ```
 
-[![Employee Anniversary Workflow with Warp Code](https://img.youtube.com/vi/pgRWSEM7bn4/maxresdefault.jpg)](https://youtu.be/pgRWSEM7bn4)
-*Video 2: generate employee anniversary Workflow using Warp Code*
+## Improve Resilience
 
-## Usage Guidelines
+```text
+Add retry configuration and timeout handling to the HTTP sample, then update the tests to cover failures.
+```
 
-When using these prompts:
+## Add Signals
 
-1. **Start Simple**: Begin with simple workflows before iterating on more complex patterns
-1. **Follow Project Patterns**: Use the existing project structure and conventions
-1. **Test Thoroughly**: Implement comprehensive tests as outlined in `testing.md`
+```text
+Create a TypeScript workflow sample that waits for approval signals before running an activity.
+```

@@ -1,17 +1,13 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
+# Node-generated files
+node_modules/
+coverage/
 dist/
-wheels/
-*.egg-info
-.ruff_cache/
-.coverage
-.pytest_cache/
-coverage.xml
-
-# Virtual environments
-.venv
+data/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Data
 bin/
