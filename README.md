@@ -77,6 +77,70 @@ src/
     └── purchase_order/
 ```
 
+## Why This Example Uses Temporal
+
+This purchase-order demo is intentionally more than CRUD over an order table. It models a process that is:
+
+- long-running
+- event-driven
+- partly offline
+- tolerant of duplicate and out-of-order updates
+- dependent on durable timers and retries
+- driven by both internal users and external vendor callbacks
+
+You do **not** need Temporal to build a system like this. A team could implement the same business flow with application services, a database, background jobs, and idempotency tables. Temporal is useful here because the orchestration problem is the hard part: keep one durable process open for a long time, accept updates at any time, retry external work, and wait safely on timers without building all of that infrastructure yourself.
+
+Temporal helps with:
+
+- durable waiting for vendor/user events
+- retries around outbound work
+- signals for inbound updates
+- queries for live reads
+- a durable orchestration history
+
+Temporal does **not** remove the need for:
+
+- good domain modeling
+- idempotency keys
+- validation of external input
+- UI-facing read models
+- integration code for vendor and internal systems
+
+## Workflow Vs Activities
+
+The purchase-order example is structured so the workflow owns **state and decisions**, and activities own **external effects**.
+
+The workflow is responsible for:
+
+- holding the current order snapshot
+- deduplicating inbound events by `eventId`
+- accepting out-of-order events when valid
+- deriving the current status
+- scheduling and resolving exception timers
+- deciding when the workflow is terminal
+
+The activities are responsible for:
+
+- sending the order to the vendor
+- publishing a current projection for the UI
+- writing an audit stream
+- emitting exception notifications
+
+This is why operations like `sendOrderToVendor` are activities even though people often describe them as “side effects.” In Temporal terms, the workflow stays deterministic and the activities perform the external work.
+
+## Why The Demo Writes Projections Outside Temporal
+
+Temporal already persists workflow history. The extra writes in this demo are **not** required for Temporal durability. They exist so the sample has a simple application-facing read model.
+
+The demo writes:
+
+- `data/orders/<orderId>.json` as the latest order projection
+- `data/audit-log.jsonl` as an application-level audit stream
+- `data/notifications.jsonl` as a stand-in for alert delivery
+- `data/vendor-orders/<orderId>.json` as vendor-simulator state
+
+Those files are a convenience layer for the UI and simulator. In a production build, that same seam could be backed by Postgres, Redis, Elasticsearch, Kafka consumers, or another projection pipeline. Temporal remains the orchestration source of truth; the projection layer exists to make reads and integrations straightforward.
+
 ## Purchase Order Timer Logic
 
 The purchase-order demo uses timers for **operational visibility**, not for hard workflow failure.
@@ -113,6 +177,29 @@ Base status priority is:
 - `CREATED` before submission
 
 `EXCEPTION` is an overlay state. If the order is not terminal and there are open timer exceptions, the UI status becomes `EXCEPTION` even though the underlying base status is still preserved. Terminal states win over the exception overlay, so `CANCELED` and `COMPLETED` remain terminal.
+
+The practical consequence is that most intermediate milestones are optional. `ACKNOWLEDGED`, `CONFIRMED`, `ASN_RECEIVED`, `MARKED_RECEIVED`, `INVOICE_RECEIVED`, and `CREDIT_POSTED` all influence status and alerts, but they are not mandatory for workflow survival. The only terminal outcomes in this demo are `CANCELED` and `RECONCILED`.
+
+## Extending This Pattern
+
+This pattern is meant to be extended.
+
+If a Yum team wanted to add internal ordering steps later, the recommended shape is:
+
+- keep the workflow responsible for state transitions and decisions
+- derive internal follow-up actions from accepted events
+- run those follow-up actions as activities after the state update, not inline inside signal handlers
+- use child workflows for any long-running human or multi-step subprocess
+
+Examples of future internal activities could include:
+
+- open a buyer review task
+- reserve internal inventory
+- create an ERP receipt
+- open an AP matching task
+- trigger downstream replenishment or menu-planning workflows
+
+If a real production order can stay open for a very long time or accumulate a very large event history, add `continueAsNew` later. It is not necessary for this demo, but it is the normal next step when turning a pattern like this into a high-volume production workflow.
 
 ## Useful Commands
 
